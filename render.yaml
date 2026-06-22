@@ -1,0 +1,43 @@
+# Render Blueprint — backend API + PostgreSQL with auto-migrate and seed.
+#
+# Deploy: connect this repo in Render Dashboard → New → Blueprint → select render.yaml
+# Or: render blueprint apply (Render CLI)
+#
+# After deploy, copy the API URL into Vercel as BACKEND_URL.
+
+databases:
+  - name: codevector-db
+    databaseName: products_db
+    user: products_user
+    plan: free
+    region: oregon
+
+services:
+  - type: web
+    name: codevector-api
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: .
+    buildCommand: npm ci --include=dev && npx prisma generate && npm run build
+    preDeployCommand: npx prisma migrate deploy && npx tsx prisma/seed.ts
+    startCommand: node dist/server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: codevector-db
+          property: connectionString
+      - key: DEFAULT_PAGE_LIMIT
+        value: "20"
+      - key: MAX_PAGE_LIMIT
+        value: "100"
+      - key: SEED_COUNT
+        value: "200000"
+      - key: SEED_BATCH_SIZE
+        value: "5000"
+      # Set after Vercel deploy — comma-separated origins, e.g. https://your-app.vercel.app
+      - key: ALLOWED_ORIGINS
+        sync: false

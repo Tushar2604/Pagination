@@ -1,0 +1,67 @@
+# Local development stack: PostgreSQL + API.
+#
+# What: One-command environment for dev, seeding, and integration tests.
+# Why: Assignment requires Docker support; pins Postgres version for reproducibility.
+#
+# Usage:
+#   docker compose up -d postgres
+#   cp .env.example .env
+#   npm install && npm run db:migrate && npm run db:seed
+#   npm run dev
+#
+# Full stack:
+#   docker compose up --build
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: products-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: products_db
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d products_db']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    container_name: products-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/products_db?schema=public
+      DEFAULT_PAGE_LIMIT: 20
+      MAX_PAGE_LIMIT: 100
+    ports:
+      - '3000:3000'
+
+  seed:
+    build:
+      context: .
+      target: seeder
+    container_name: products-seed
+    profiles:
+      - seed
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/products_db?schema=public
+      SEED_COUNT: '200000'
+      SEED_BATCH_SIZE: '5000'
+      FORCE_SEED: 'true'
+
+volumes:
+  postgres_data:

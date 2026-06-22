@@ -1,0 +1,31 @@
+// Prisma schema for the product catalog.
+//
+// What: Defines the Product model and database connection.
+// Why: Single source of truth for types, migrations, and the ORM layer.
+// How it helps: Composite indexes match our ORDER BY + cursor predicates so
+// PostgreSQL can satisfy list queries via index scans instead of sorts.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(255)
+  category  String   @db.VarChar(100)
+  price     Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Global newest-first listing: ORDER BY created_at DESC, id DESC
+  // with cursor predicate (created_at, id) < ($cursor_created_at, $cursor_id).
+  @@index([createdAt(sort: Desc), id(sort: Desc)], map: "idx_products_created_at_id_desc")
+  // Category filter + same sort order for filtered listings.
+  @@index([category, createdAt(sort: Desc), id(sort: Desc)], map: "idx_products_category_created_at_id_desc")
+  @@map("products")
+}

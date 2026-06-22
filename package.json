@@ -1,0 +1,42 @@
+{
+  "name": "codevector-products-api",
+  "version": "1.0.0",
+  "description": "Production-grade product catalog API with cursor pagination",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "start:render": "npx prisma migrate deploy && node dist/server.js",
+    "dev": "dotenv -e .env --override -- tsx watch src/server.ts",
+    "db:generate": "dotenv -e .env --override -- prisma generate",
+    "db:migrate": "dotenv -e .env --override -- prisma migrate deploy",
+    "db:migrate:dev": "dotenv -e .env --override -- prisma migrate dev",
+    "db:seed": "dotenv -e .env --override -- tsx prisma/seed.ts",
+    "test": "dotenv -e .env --override -- vitest run",
+    "test:watch": "dotenv -e .env --override -- vitest",
+    "lint": "tsc --noEmit"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.9.0",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.15.32",
+    "@types/supertest": "^6.0.3",
+    "dotenv-cli": "^8.0.0",
+    "prisma": "^6.9.0",
+    "supertest": "^7.1.1",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}
