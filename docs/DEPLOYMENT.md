@@ -37,8 +37,8 @@ The frontend proxies API calls through Vercel (`BACKEND_URL`), so **CORS is not 
    |-------|-------|
    | Runtime | Node |
    | Build Command | `npm ci --include=dev && npx prisma generate && npm run build` |
-   | Pre-Deploy Command | `npx prisma migrate deploy && npx tsx prisma/seed.ts` |
-   | Start Command | `node dist/server.js` |
+   | Pre-Deploy Command | *(leave empty)* |
+   | Start Command | `npm run start:render` |
    | Health Check Path | `/health` |
 
 4. Environment variables:
@@ -113,6 +113,7 @@ Multiple origins: comma-separated, no spaces required.
 | `Failed to fetch` on Vercel | Check `BACKEND_URL` is correct; redeploy Vercel after changing it |
 | Empty product list | Check Render logs for seed errors; run `curl .../api/products?limit=1` |
 | `Can't reach database` | Verify `DATABASE_URL` uses Render **Internal** URL on the web service |
+| `DATABASE_URL is not set` | Link PostgreSQL: Dashboard → your web service → **Environment** → **Add from Database** → select your DB → `DATABASE_URL` |
 | Slow first load | Render free tier cold start — normal; subsequent requests are fast |
 | Seed timeout on deploy | Lower `SEED_COUNT` to `50000` temporarily, redeploy, then increase |
 | Build fails on Vercel | Confirm **Root Directory** is `frontend`, not repo root |

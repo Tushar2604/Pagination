@@ -1,8 +1,6 @@
 # Render Blueprint — backend API + PostgreSQL with auto-migrate and seed.
 #
-# Deploy: connect this repo in Render Dashboard → New → Blueprint → select render.yaml
-# Or: render blueprint apply (Render CLI)
-#
+# Deploy: Render Dashboard → New → Blueprint → connect repo
 # After deploy, copy the API URL into Vercel as BACKEND_URL.
 
 databases:
@@ -20,8 +18,8 @@ services:
     region: oregon
     rootDir: .
     buildCommand: npm ci --include=dev && npx prisma generate && npm run build
-    preDeployCommand: npx prisma migrate deploy && npx tsx prisma/seed.ts
-    startCommand: node dist/server.js
+    # Migrate + seed at start (DATABASE_URL is available at runtime, not in preDeploy)
+    startCommand: npm run start:render
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
@@ -38,6 +36,5 @@ services:
         value: "200000"
       - key: SEED_BATCH_SIZE
         value: "5000"
-      # Set after Vercel deploy — comma-separated origins, e.g. https://your-app.vercel.app
       - key: ALLOWED_ORIGINS
         sync: false

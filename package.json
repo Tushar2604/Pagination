@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "start:render": "npx prisma migrate deploy && node dist/server.js",
+    "start:render": "sh scripts/render-start.sh",
     "dev": "dotenv -e .env --override -- tsx watch src/server.ts",
     "db:generate": "dotenv -e .env --override -- prisma generate",
     "db:migrate": "dotenv -e .env --override -- prisma migrate deploy",
@@ -26,6 +26,8 @@
     "@prisma/client": "^6.9.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "prisma": "^6.9.0",
+    "tsx": "^4.20.3",
     "zod": "^3.25.67"
   },
   "devDependencies": {
@@ -33,9 +35,7 @@
     "@types/node": "^22.15.32",
     "@types/supertest": "^6.0.3",
     "dotenv-cli": "^8.0.0",
-    "prisma": "^6.9.0",
     "supertest": "^7.1.1",
-    "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
   }
